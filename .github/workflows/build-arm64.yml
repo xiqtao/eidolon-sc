@@ -1,0 +1,39 @@
+name: build-arm64
+
+# 手动触发：把 backend / frontend 两个镜像构建成 linux/arm64 并推到 GHCR
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    # 公开仓库可以直接用 GitHub 的 arm64 原生 runner，不需要 QEMU 模拟
+    runs-on: ubuntu-24.04-arm
+    strategy:
+      fail-fast: false
+      matrix:
+        service: [backend, frontend]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # GHCR 的镜像名必须全小写
+      - id: owner
+        run: echo "name=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.service }}
+          platforms: linux/arm64
+          push: true
+          tags: ghcr.io/${{ steps.owner.outputs.name }}/eidolon-sc-${{ matrix.service }}:main
