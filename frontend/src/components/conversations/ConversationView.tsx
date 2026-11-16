@@ -849,7 +849,7 @@ function Bubbled({
           </HerBubble>
           {last && !entry.pending && time}
         </div>
-        {said && reading && (
+        {said && reading?.canRead && (
           <ReadAloudBar readAloud={reading.readAloud} said={said} inCall={reading.inCall} timeZone={reading.timeZone} />
         )}
       </MessageContent>

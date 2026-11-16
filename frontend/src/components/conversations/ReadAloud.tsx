@@ -77,7 +77,21 @@ export function ReadAloudBar({
   const key = readAloudKey(said);
   const state = useReadAloudState(readAloud, key);
   const progress = useReadAloudProgress(readAloud, key, state);
-  if (!state) return null;
+  if (!state) {
+    return (
+      <div className="px-1">
+        <button
+          type="button"
+          disabled={inCall}
+          onClick={() => readAloud.read(said)}
+          className="inline-flex items-center gap-1 rounded-sm text-meta text-muted-foreground outline-none hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50"
+        >
+          <ReadAloudIcon aria-hidden />
+          {t.menu}
+        </button>
+      </div>
+    );
+  }
   if (state.status === "failed") {
     return (
       <div role="status" className="flex flex-wrap items-baseline gap-x-2 px-1 text-meta text-muted-foreground">
